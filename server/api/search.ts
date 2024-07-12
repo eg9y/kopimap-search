@@ -85,14 +85,11 @@ function isValidAttributeMode(value: string): value is AttributeMode {
   return validModes.includes(value as AttributeMode)
 }
 
-const client = new MeiliSearch({
-  host: process.env.MEILISEARCH_HOST,
-  apiKey: process.env.MEILISEARCH_API_KEY,
-})
-
-const index = client.index('cafes')
 
 export default defineEventHandler(async (event) => {
+const client = getMeiliSearchClient()
+const index = client.index('cafes')
+
   // Apply rate limiting
   const clientIp = getRequestIP(event) ?? 'anonymous'
   const rateLimitResult = rateLimit(clientIp)
