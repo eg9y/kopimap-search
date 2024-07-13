@@ -1,6 +1,6 @@
-import { MeiliSearch } from 'meilisearch'
 import { rateLimit } from '~/utils/rateLimit'
 import { QueryObject } from 'ufo'
+import { getMeiliSearchClient } from '~/utils/meilisearch'
 
 // Define a type for our attribute modes
 type AttributeMode = 
