@@ -1,5 +1,9 @@
-import { getMeiliSearchClient } from '~/utils/meilisearch'
+import { MeiliSearch } from 'meilisearch'
 
+const client = new MeiliSearch({
+    host: process.env.MEILISEARCH_HOST,
+    apiKey: process.env.MEILISEARCH_API_KEY,
+  })
 
 export default defineEventHandler(async (event) => {
   // Ensure this is a PUT request
@@ -20,7 +24,6 @@ export default defineEventHandler(async (event) => {
   }
 
   const providedApiKey = authHeader.split(' ')[1]
-
 
   // Compare the provided API key with the stored one
   if (providedApiKey !== process.env.SECRET_KEY) {
@@ -44,7 +47,6 @@ export default defineEventHandler(async (event) => {
   const { id, ...updateData } = body
 
   try {
-    const client = getMeiliSearchClient()
     const index = client.index('cafes')
 
     // Update the document in Meilisearch
