@@ -12,7 +12,6 @@
     "dotenv-cli": "^7.3.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.44.4",
     "meilisearch": "^0.41.0",
     "dotenv": "^16.3.1"
   }

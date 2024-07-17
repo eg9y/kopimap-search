@@ -1,35 +1,5 @@
 import { getMeiliSearchClient } from '~/utils/meilisearch'
-import { createClient } from '@supabase/supabase-js'
 
-// Initialize Supabase client
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
-
-// Cache for the API key
-let cachedApiKey: string | null = null
-
-// Function to get the API key, using cache if available
-async function getApiKey(): Promise<string> {
-  if (cachedApiKey) {
-    return cachedApiKey
-  }
-
-  const { data, error } = await supabase
-    .from('vault.decrypted_secrets')
-    .select('decrypted_secret')
-    .eq('name', 'search_api_key')
-    .single()
-
-  if (error || !data) {
-    console.error('Error retrieving API key from vault:', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal Server Error',
-    })
-  }
-
-  cachedApiKey = data.decrypted_secret
-  return cachedApiKey
-}
 
 export default defineEventHandler(async (event) => {
   // Ensure this is a PUT request
@@ -51,11 +21,9 @@ export default defineEventHandler(async (event) => {
 
   const providedApiKey = authHeader.split(' ')[1]
 
-  // Get the stored API key (using cache if available)
-  const storedApiKey = await getApiKey()
 
   // Compare the provided API key with the stored one
-  if (providedApiKey !== storedApiKey) {
+  if (providedApiKey !== process.env.SECRET_KEY) {
     throw createError({
       statusCode: 401,
       statusMessage: 'Unauthorized: Invalid API key',
