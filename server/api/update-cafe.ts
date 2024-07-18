@@ -37,14 +37,14 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   // Validate the request body
-  if (!body || typeof body !== 'object' || !body.id) {
+  if (!body || typeof body !== 'object' || !body.place_id) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Invalid request body. Must include cafe ID.',
     })
   }
 
-  const { id, ...updateData } = body
+  const { place_id, ...updateData } = body
 
   try {
     const index = client.index('cafes')
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
     // Update the document in Meilisearch
     await index.updateDocuments([
       {
-        id,
+        id: place_id,
         ...updateData,
       },
     ])
