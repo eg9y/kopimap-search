@@ -13,7 +13,7 @@ function buildFilters(query: QueryObject): string[] {
 
   // Dynamic attribute filters
   for (const [key, value] of Object.entries(query)) {
-    if (key !== 'q' && key !== 'page' && key !== 'hitsPerPage' && key !== 'lat' && key !== 'lng' && key !== 'minRating') {
+    if (key !== 'q' && key !== 'page' && key !== 'hitsPerPage' && key !== 'lat' && key !== 'lng' && key !== 'minRating' && key !== 'radius') {
       if (typeof value === 'string') {
         filters.push(`${key} = '${value}'`)
       }
@@ -53,9 +53,16 @@ export default defineEventHandler(async (event) => {
       filter: buildFilters(query),
     }
 
-    // Add geo search if coordinates are provided
-    if (query.lat && query.lng) {
-      searchOptions.sort = [`_geoPoint(${query.lat}, ${query.lng}):asc`]
+    // Add geo search if coordinates and radius are provided
+    if (query.lat && query.lng && query.radius) {
+      const lat = parseFloat(query.lat as string)
+      const lng = parseFloat(query.lng as string)
+      const radius = parseInt(query.radius as string)
+      
+      if (!isNaN(lat) && !isNaN(lng) && !isNaN(radius)) {
+        searchOptions.filter.push(`_geoRadius(${lat}, ${lng}, ${radius})`)
+        searchOptions.sort = [`_geoPoint(${lat}, ${lng}):asc`]
+      }
     }
 
     const searchResults = await index.search(searchTerm, searchOptions)
