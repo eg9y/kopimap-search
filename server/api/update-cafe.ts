@@ -52,15 +52,10 @@ export default defineEventHandler(async (event) => {
     // Update the document in Meilisearch
 await index.updateDocuments([
       {
-        id: place_id,
         ...updateData,
+        id: place_id,
       },
     ])
-
-    console.log('update data:', {
-      id: place_id,
-      ...updateData,
-    });
 
     return {
       message: 'Cafe updated successfully',
