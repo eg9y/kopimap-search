@@ -50,12 +50,17 @@ export default defineEventHandler(async (event) => {
     const index = client.index('cafes')
 
     // Update the document in Meilisearch
-    await index.updateDocuments([
+await index.updateDocuments([
       {
         id: place_id,
         ...updateData,
       },
     ])
+
+    console.log('update data:', {
+      id: place_id,
+      ...updateData,
+    });
 
     return {
       message: 'Cafe updated successfully',
