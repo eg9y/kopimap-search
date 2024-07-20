@@ -53,15 +53,22 @@ export default defineEventHandler(async (event) => {
       filter: buildFilters(query),
     }
 
-    // Add geo search if coordinates and radius are provided
-    if (query.lat && query.lng && query.radius) {
+    // Add geo search if coordinates are provided
+    if (query.lat && query.lng) {
       const lat = parseFloat(query.lat as string)
       const lng = parseFloat(query.lng as string)
-      const radius = parseInt(query.radius as string)
       
-      if (!isNaN(lat) && !isNaN(lng) && !isNaN(radius)) {
-        searchOptions.filter.push(`_geoRadius(${lat}, ${lng}, ${radius})`)
+      if (!isNaN(lat) && !isNaN(lng)) {
+        // Always sort by distance when coordinates are provided
         searchOptions.sort = [`_geoPoint(${lat}, ${lng}):asc`]
+
+        // Only apply radius filter if there's no search term
+        if (!searchTerm && query.radius) {
+          const radius = parseInt(query.radius as string)
+          if (!isNaN(radius)) {
+            searchOptions.filter.push(`_geoRadius(${lat}, ${lng}, ${radius})`)
+          }
+        }
       }
     }
 
