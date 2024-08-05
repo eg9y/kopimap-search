@@ -2,7 +2,7 @@
 import { defineEventHandler, appendHeader } from 'h3'
 
 export default defineEventHandler((event) => {
-  const allowedOrigins = ['http://localhost:5173', 'https://kopimap.com', 'capacitor://localhost']
+  const allowedOrigins = ['http://localhost:5173', 'http://localhost:3001', 'https://kopimap.com', 'capacitor://localhost']
   const origin = getRequestHeader(event, 'origin')
 
   if (origin && allowedOrigins.includes(origin)) {

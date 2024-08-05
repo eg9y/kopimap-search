@@ -8,11 +8,12 @@
     "start": "dotenv -e .env node .output/server/index.mjs"
   },
   "devDependencies": {
-    "nitropack": "latest",
-    "dotenv-cli": "^7.3.0"
+    "dotenv-cli": "^7.3.0",
+    "nitropack": "latest"
   },
   "dependencies": {
+    "dotenv": "^16.3.1",
     "meilisearch": "^0.41.0",
-    "dotenv": "^16.3.1"
+    "nsfw-filter": "^1.0.3"
   }
 }
