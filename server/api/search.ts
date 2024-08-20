@@ -4,19 +4,16 @@ import { rateLimit } from "~/utils/rateLimit";
 
 function buildFilters(query: QueryObject): string[] {
   const filters: string[] = [];
-
   // Rating filter (At least logic)
   const rating = parseFloat(query.gmaps_rating as string);
   if (!isNaN(rating)) {
     filters.push(`gmaps_rating >= ${rating}`);
   }
-
   // Total reviews filter (At least logic)
   const totalReviews = parseInt(query.gmaps_total_reviews as string);
   if (!isNaN(totalReviews)) {
     filters.push(`gmaps_total_reviews >= ${totalReviews}`);
   }
-
   // Dynamic attribute filters
   for (const [key, value] of Object.entries(query)) {
     if (
@@ -27,14 +24,14 @@ function buildFilters(query: QueryObject): string[] {
       key !== "lng" &&
       key !== "gmaps_rating" &&
       key !== "gmaps_total_reviews" &&
-      key !== "radius"
+      key !== "radius" &&
+      key !== "isIncludeDetails"
     ) {
       if (typeof value === "string") {
         filters.push(`${key} = '${value}'`);
       }
     }
   }
-
   return filters;
 }
 
@@ -45,7 +42,6 @@ const client = new MeiliSearch({
 
 export default defineEventHandler(async (event) => {
   const index = client.index("cafes");
-
   // Apply rate limiting
   const clientIp = getRequestIP(event) ?? "anonymous";
   const rateLimitResult = rateLimit(clientIp);
@@ -60,6 +56,7 @@ export default defineEventHandler(async (event) => {
   const searchTerm = (query.q as string) || "";
   const page = parseInt(query.page as string) || 1;
   const hitsPerPage = parseInt(query.hitsPerPage as string) || 20;
+  const isIncludeDetails = query.isIncludeDetails === 'true';
 
   try {
     const searchOptions: any = {
@@ -68,17 +65,20 @@ export default defineEventHandler(async (event) => {
       filter: buildFilters(query),
     };
 
-    console.log('searchOptions', searchOptions)
+    // Set the fields to retrieve based on isIncludeDetails
+    if (!isIncludeDetails) {
+      searchOptions.attributesToRetrieve = ['id', 'gmaps_rating', '_geo', 'name'];
+    }
+
+    console.log('searchOptions', searchOptions);
 
     // Add geo search if coordinates are provided
     if (query.lat && query.lng) {
       const lat = parseFloat(query.lat as string);
       const lng = parseFloat(query.lng as string);
-
       if (!isNaN(lat) && !isNaN(lng)) {
         // Always sort by distance when coordinates are provided
         searchOptions.sort = [`_geoPoint(${lat}, ${lng}):asc`];
-
         // Only apply radius filter if there's no search term
         if (!searchTerm && query.radius) {
           const radius = parseInt(query.radius as string);
