@@ -68,6 +68,8 @@ export default defineEventHandler(async (event) => {
       filter: buildFilters(query),
     };
 
+    console.log('searchOptions', searchOptions)
+
     // Add geo search if coordinates are provided
     if (query.lat && query.lng) {
       const lat = parseFloat(query.lat as string);
