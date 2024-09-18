@@ -18,18 +18,24 @@ function buildFilters(query: QueryObject): string[] {
   for (const [key, value] of Object.entries(query)) {
     if (
       key !== "q" &&
-      key !== "page" &&
-      key !== "hitsPerPage" &&
-      key !== "lat" &&
-      key !== "lng" &&
-      key !== "gmaps_rating" &&
-      key !== "gmaps_total_reviews" &&
-      key !== "radius" &&
-      key !== "isIncludeDetails"
+        key !== "page" &&
+        key !== "hitsPerPage" &&
+        key !== "lat" &&
+        key !== "lng" &&
+        key !== "gmaps_rating" &&
+        key !== "gmaps_total_reviews" &&
+        key !== "radius" &&
+        key !== "isIncludeDetails" &&
+        typeof value !== "string" ||
+      (typeof value === "string" && !value.includes(","))
     ) {
       if (typeof value === "string") {
         filters.push(`${key} = '${value}'`);
       }
+    } else if (typeof value === "string" && value.includes(",")) {
+      const values = value.split(",");
+      // JOIN WITH OR e.g. coffee_quality = Good OR coffee_quality = Excellent
+      filters.push(`${key} = [${values.map((v) => `'${v}'`).join(" OR ")}]`);
     }
   }
   return filters;
@@ -56,7 +62,7 @@ export default defineEventHandler(async (event) => {
   const searchTerm = (query.q as string) || "";
   const page = parseInt(query.page as string) || 1;
   const hitsPerPage = parseInt(query.hitsPerPage as string) || 20;
-  const isIncludeDetails = query.isIncludeDetails === 'true';
+  const isIncludeDetails = query.isIncludeDetails === "true";
 
   try {
     const searchOptions: any = {
@@ -67,10 +73,15 @@ export default defineEventHandler(async (event) => {
 
     // Set the fields to retrieve based on isIncludeDetails
     if (!isIncludeDetails) {
-      searchOptions.attributesToRetrieve = ['id', 'gmaps_rating', '_geo', 'name'];
+      searchOptions.attributesToRetrieve = [
+        "id",
+        "gmaps_rating",
+        "_geo",
+        "name",
+      ];
     }
 
-    console.log('searchOptions', searchOptions);
+    console.log("searchOptions", searchOptions);
 
     // Add geo search if coordinates are provided
     if (query.lat && query.lng) {
