@@ -18,19 +18,19 @@ function buildFilters(query: QueryObject): string[] {
   for (const [key, value] of Object.entries(query)) {
     if (
       key !== "q" &&
-        key !== "page" &&
-        key !== "hitsPerPage" &&
-        key !== "lat" &&
-        key !== "lng" &&
-        key !== "gmaps_rating" &&
-        key !== "gmaps_total_reviews" &&
-        key !== "radius" &&
-        key !== "isIncludeDetails" &&
-        typeof value !== "string" ||
-      (typeof value === "string" && !value.includes(","))
+      key !== "page" &&
+      key !== "hitsPerPage" &&
+      key !== "lat" &&
+      key !== "lng" &&
+      key !== "gmaps_rating" &&
+      key !== "gmaps_total_reviews" &&
+      key !== "radius" &&
+      key !== "isIncludeDetails" &&
+      (typeof value !== "string" || !isNaN(Number(value))) &&
+      (typeof value !== "string" || !value.includes(","))
     ) {
       if (typeof value === "string") {
-        filters.push(`${key} = '${value}'`);
+        filters.push(`${key} = ${isNaN(Number(value)) ? `'${value}'` : value}`);
       }
     } else if (typeof value === "string" && value.includes(",")) {
       const values = value.split(",");
