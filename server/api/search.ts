@@ -35,7 +35,9 @@ function buildFilters(query: QueryObject): string[] {
     } else if (typeof value === "string" && value.includes(",")) {
       const values = value.split(",");
       // JOIN WITH OR e.g. coffee_quality = Good OR coffee_quality = Excellent
-      filters.push(`${key} = [${values.map((v) => `'${v}'`).join(" OR ")}]`);
+      filters.push(
+        `${values.map((v) => `${key} = '${v}'`).join(" OR ")}`,
+      );
     }
   }
   return filters;
