@@ -25,19 +25,18 @@ function buildFilters(query: QueryObject): string[] {
       key !== "gmaps_rating" &&
       key !== "gmaps_total_reviews" &&
       key !== "radius" &&
-      key !== "isIncludeDetails" &&
-      (typeof value !== "string" || !isNaN(Number(value))) &&
-      (typeof value !== "string" || !value.includes(","))
+      key !== "isIncludeDetails"
     ) {
-      if (typeof value === "string") {
-        filters.push(`${key} = ${isNaN(Number(value)) ? `'${value}'` : value}`);
+      if (typeof value === "string" && value.includes(",")) {
+        const values = value.split(",");
+        filters.push(
+          `${values.map((v) => `${key} = '${v.trim()}'`).join(" OR ")}`,
+        );
+      } else if (typeof value === "string") {
+        filters.push(`${key} = '${value}'`);
+      } else if (typeof value === "number") {
+        filters.push(`${key} = ${value}`);
       }
-    } else if (typeof value === "string" && value.includes(",")) {
-      const values = value.split(",");
-      // JOIN WITH OR e.g. coffee_quality = Good OR coffee_quality = Excellent
-      filters.push(
-        `${values.map((v) => `${key} = '${v}'`).join(" OR ")}`,
-      );
     }
   }
   return filters;
@@ -82,8 +81,6 @@ export default defineEventHandler(async (event) => {
         "name",
       ];
     }
-
-    console.log("searchOptions", searchOptions);
 
     // Add geo search if coordinates are provided
     if (query.lat && query.lng) {
