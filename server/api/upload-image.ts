@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
 	const storageZonePassword = process.env.BUNNY_STORAGE_PASSWORD;
 	const region = "sg"; // Use 'sg' for Singapore region
 	const hostname = `${region}.storage.bunnycdn.com`;
-	const filePath = `/${storageZoneName}/${placeId}/${file.filename}`;
+	const filePath = `/${storageZoneName}/review-images/${placeId}/${file.filename}`;
 
 	const options: https.RequestOptions = {
 		method: "PUT",
@@ -104,7 +104,7 @@ export default defineEventHandler(async (event) => {
 		if (response.statusCode >= 200 && response.statusCode < 300) {
 			// Construct the URL to access the file
 			const cdnHostname = "kopimap-cdn.b-cdn.net";
-			const fileUrl = `https://${cdnHostname}/${placeId}/${file.filename}`;
+			const fileUrl = `https://${cdnHostname}/review-images/${placeId}/${file.filename}`;
 
 			return { url: fileUrl };
 		} else {
